@@ -70,7 +70,7 @@ jobs:
       continue-on-error: true
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.PERMANENT_GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: f-${{ steps.get_build_time.outputs.build_time }}
         release_name: Quiche Nginx Module-${{ steps.get_build_time.outputs.build_time }}
@@ -84,7 +84,7 @@ jobs:
       if: steps.check_artifacts.outputs.skip_build != 'true'
       uses: softprops/action-gh-release@master
       env:
-        GITHUB_TOKEN: ${{ secrets.PERMANENT_GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: f-${{ steps.get_build_time.outputs.build_time }}
         name: Quiche Nginx Module-${{ steps.get_build_time.outputs.build_time }}
