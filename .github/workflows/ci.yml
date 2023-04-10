@@ -36,7 +36,7 @@ jobs:
     - name: Install dependencies (ubuntu)
       run: | 
         sudo apt-get update
-        sudo apt-get install patch tree zip libprotobuf-dev protobuf-compiler libgoogle-perftools-dev
+        sudo apt-get install patch tree zip libprotobuf-c1 protobuf-compiler libgoogle-perftools-dev
         ldconfig -p | grep tcmalloc_minimal || true
 
     - name: Fetch code
