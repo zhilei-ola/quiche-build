@@ -32,7 +32,9 @@ jobs:
       uses: actions/checkout@v1
 
     - name: Install dependencies (ubuntu)
-      run: sudo apt-get install patch tree zip libprotobuf-dev protobuf-compiler
+      run: | 
+        sudo apt-get update
+        sudo apt-get install patch tree zip libprotobuf-dev protobuf-compiler google-perftools
 
     - name: Fetch code
       id: fetch_code_from_repo
@@ -40,12 +42,15 @@ jobs:
         git clone --recursive https://github.com/bilibili/nginx_quic_stack.git
         cd nginx_quic_stack
       shell: bash
-    
-    - name: Start build 
-      id: start_build
+    - name: Get build time
+      id: get_build_time
       run: |
         value=`date +%Y-%m-%d-%H-%M-%S`
         echo ::set-output name=build_time::$value
+      shell: bash
+    - name: Start build 
+      id: start_build
+      run: |
         pwd
         cd nginx_quic_stack
         mkdir build && cd build
@@ -54,30 +59,33 @@ jobs:
       shell: bash
 
     - name: Print out tree
-      run: tree ./build/
+      id: check_artifacts
+      run: |
+        tree ./nginx_quic_stack/build/
+        echo ::set-output name=skip_build::true
       shell: bash
 
-    # - name: Create release
-    #   if: github.event_name != 'pull_request'
-    #   continue-on-error: true
-    #   uses: actions/create-release@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.PERMANENT_GITHUB_TOKEN }}
-    #   with:
-    #     tag_name: f-${{ steps.get_engine_version.outputs.engine_version }}-${{ steps.get_build_time.outputs.build_time }}
-    #     release_name: Flutter Engine ${{ steps.get_engine_version.outputs.engine_version }}-${{ steps.get_build_time.outputs.build_time }}
+    - name: Create release
+      if: steps.check_artifacts.outputs.skip_build != 'true' 
+      continue-on-error: true
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.PERMANENT_GITHUB_TOKEN }}
+      with:
+        tag_name: f-${{ steps.get_build_time.outputs.build_time }}
+        release_name: Quiche Nginx Module-${{ steps.get_build_time.outputs.build_time }}
 
-    # - name: Create release zip
-    #   if: steps.release_check.outputs.skip_build != 'true' 
-    #   run: cd build && zip -qq -r ../${{ matrix.config.host_tag }}-${{ matrix.config.tag }}.zip ./*
-    #   shell: bash
+    - name: Create release zip
+      if: steps.check_artifacts.outputs.skip_build != 'true' 
+      run: cd nginx_quic_stack/build/ && zip -qq -r ../${{ matrix.config.host_tag }}.zip ./*
+      shell: bash
 
-    # - name: Upload release asset
-    #   if: steps.release_check.outputs.skip_build != 'true' && github.event_name != 'pull_request' 
-    #   uses: softprops/action-gh-release@master
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.PERMANENT_GITHUB_TOKEN }}
-    #   with:
-    #     tag_name: f-${{ steps.get_engine_version.outputs.engine_version }}-${{ steps.get_build_time.outputs.build_time }}
-    #     name: Flutter ${{ steps.get_engine_version.outputs.engine_version }}-${{ steps.get_build_time.outputs.build_time }}
-    #     files: ${{ matrix.config.host_tag }}-${{ matrix.config.tag }}.zip
+    - name: Upload release asset
+      if: steps.check_artifacts.outputs.skip_build != 'true'
+      uses: softprops/action-gh-release@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.PERMANENT_GITHUB_TOKEN }}
+      with:
+        tag_name: f-${{ steps.get_build_time.outputs.build_time }}
+        name: Quiche Nginx Module-${{ steps.get_build_time.outputs.build_time }}
+        files: ${{ matrix.config.host_tag }}.zip
