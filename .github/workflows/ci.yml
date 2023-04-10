@@ -34,7 +34,7 @@ jobs:
     - name: Install dependencies (ubuntu)
       run: | 
         sudo apt-get update
-        sudo apt-get install patch tree zip libprotobuf-dev protobuf-compiler google-perftools
+        sudo apt-get install patch tree zip libprotobuf-dev protobuf-compiler libgoogle-perftools-dev
 
     - name: Fetch code
       id: fetch_code_from_repo
