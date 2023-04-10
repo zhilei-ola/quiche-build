@@ -26,6 +26,8 @@ jobs:
         sudo df -h
         cat /proc/version
         cat /proc/cpuinfo
+        ldconfig -p | grep tcmalloc_minimal || true
+
 
     - name: Checkout
       if: steps.release_check.outputs.skip_build != 'true' 
@@ -35,6 +37,7 @@ jobs:
       run: | 
         sudo apt-get update
         sudo apt-get install patch tree zip libprotobuf-dev protobuf-compiler libgoogle-perftools-dev
+        ldconfig -p | grep tcmalloc_minimal || true
 
     - name: Fetch code
       id: fetch_code_from_repo
