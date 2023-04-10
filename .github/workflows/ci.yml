@@ -24,8 +24,8 @@ jobs:
       run: |
         pwd
         sudo df -h
-        echo "install cmake and other tools"
-        sudo df -h
+        cat /proc/version
+        cat /proc/cpuinfo
 
     - name: Checkout
       if: steps.release_check.outputs.skip_build != 'true' 
@@ -69,7 +69,7 @@ jobs:
 
     # - name: Create release zip
     #   if: steps.release_check.outputs.skip_build != 'true' 
-    #   run: cd engine_out && zip -qq -r ../${{ matrix.config.host_tag }}-${{ matrix.config.tag }}.zip ./*
+    #   run: cd build && zip -qq -r ../${{ matrix.config.host_tag }}-${{ matrix.config.tag }}.zip ./*
     #   shell: bash
 
     # - name: Upload release asset
